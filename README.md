@@ -208,6 +208,7 @@ mindmap
       Colossyan
       Elai.io
       Hedra
+      Creatify
     Open Source Local
       SadTalker
       LivePortrait
@@ -217,12 +218,14 @@ mindmap
       DiffTalk
       GeneFace++
       AniPortrait
+      OmniHuman-1
     General Video AI
       Runway ML Gen-3
       Pika Labs
       Kling AI
       Luma Dream Machine
       Stable Video Diffusion
+      Wan2.1
     SaaS No-Code
       Wondershare Virbo
       Captions.ai
@@ -247,6 +250,7 @@ mindmap
 | **Colossyan** | 150+ stock + Custom | ✅ TTS + clone | ✅ REST | ⭐⭐⭐⭐ | Head + body | 2–4 min | ✅ 5 min/mo | $28/mo |
 | **Elai.io** | 80+ stock + Photo | ✅ TTS + clone | ✅ REST | ⭐⭐⭐⭐ | Head | 1–3 min | ✅ 1 min/mo | $29/mo |
 | **Hedra** | Photo | ✅ Upload audio | ✅ REST | ⭐⭐⭐⭐ | Head | 30–90s | ✅ 3 min/mo | $8/mo |
+| **Creatify** | 500+ stock + Digital Twin | ✅ Voice clone | ✅ REST | ⭐⭐⭐⭐⭐ | Head + upper body | 1–2 min | ✅ Trial | $39/mo |
 
 ---
 
@@ -368,6 +372,35 @@ flowchart LR
 
 ---
 
+#### Creatify
+
+```mermaid
+flowchart LR
+    A[Script text\n+ avatar_id\n+ voice_id\n+ aspect_ratio] -->|POST /api/v1/avatar_video/generate| B[Creatify Cloud]
+    B -->|video_id| C[Poll GET /api/v1/avatar_video/:id]
+    C -->|completed| D[video_url MP4\nwatermark-free]
+
+    style B fill:#1e1b4b,stroke:#f472b6,color:#fce7f3
+```
+
+| Property | Detail |
+|----------|--------|
+| **Model** | Proprietary (ad-optimised) |
+| **Input** | Avatar ID + voice ID + script text + aspect ratio |
+| **Output** | Full upper-body talking avatar MP4 |
+| **Voice** | Voice clone (upload sample) or 200+ built-in voices |
+| **Head motion** | Upper body with natural gestures — optimised for short-form ads |
+| **Lip sync accuracy** | Excellent |
+| **Resolution** | Up to 1080p, supports 9:16 / 1:1 / 16:9 |
+| **API auth** | `Authorization: Bearer` token |
+| **Async** | Yes — poll for completion |
+| **Avatar library** | 500+ stock digital humans + "Digital Twin" from 2-min video |
+| **Unique feature** | URL-to-video (paste a product URL → auto-generates ad script + video) |
+| **Best for** | Performance marketing, short-form ad creatives, TikTok/Reels/YouTube Shorts |
+| **Limitation** | Focused on ads/short content; less suited for long-form or educational video |
+
+---
+
 ### 2. Open-Source Local Models
 
 #### Quick Comparison Table
@@ -382,6 +415,7 @@ flowchart LR
 | **DiffTalk** | Portrait + audio | Mouth + head | ⭐⭐⭐⭐ | 8 GB | 5–10 min | 1–2 min | ❌ |
 | **GeneFace++** | Portrait + audio | Full head | ⭐⭐⭐⭐⭐ | 8 GB | ❌ (CUDA only) | 1–2 min | ❌ |
 | **AniPortrait** | Portrait + audio | Full head | ⭐⭐⭐⭐ | 16 GB | ❌ (CUDA only) | 2–4 min | ❌ |
+| **OmniHuman-1** | Portrait + audio/video | Full body | ⭐⭐⭐⭐⭐ | 24 GB | ❌ (CUDA only) | 3–6 min | ❌ |
 
 ---
 
@@ -506,6 +540,34 @@ flowchart TD
 
 ---
 
+#### OmniHuman-1
+
+```mermaid
+flowchart TD
+    A[Reference Image\nsingle portrait] --> D[OmniHuman-1\nDiffusion Model]
+    B[Driving Signal\naudio / pose / video] --> D
+    C[Condition Type\nweak / strong] --> D
+    D -->|full-body\nanimation| E[Animated Video\narbitrary aspect ratio]
+
+    style D fill:#0f172a,stroke:#e879f9,color:#fdf4ff
+```
+
+| Property | Detail |
+|----------|--------|
+| **Technique** | Diffusion-based, omni-conditioned human animation (ByteDance Research) |
+| **Input** | Single portrait image + driving signal (audio, body pose, or reference video) |
+| **Output** | Full-body animated video — head, torso, arms, hands |
+| **Motion** | Full-body motion including natural gestures, not just head/face |
+| **Model size** | ~24 GB weights (not yet publicly released) |
+| **Aspect ratio** | Arbitrary — portrait (9:16), landscape (16:9), square (1:1) |
+| **MPS (Apple Silicon)** | ❌ CUDA only |
+| **Availability** | ⚠️ Research preview only — weights not yet public as of 2025 |
+| **Repo** | [bytedance/OmniHuman-1](https://github.com/bytedance/OmniHuman-1) (paper + demos only) |
+| **Best for** | State-of-the-art full-body animation once weights are released |
+| **Limitation** | Not yet publicly usable; requires high-end CUDA GPU; no lip sync fine-tuning |
+
+---
+
 ### 3. General Video AI (Not Avatar-Specific)
 
 These generate video from text/image prompts but can produce talking-head style content with the right prompt.
@@ -518,8 +580,37 @@ These generate video from text/image prompts but can produce talking-head style 
 | **Luma Dream Machine** | Text/image → video | ❌ Indirect | ✅ REST | ⭐⭐⭐⭐ | 1–2 min | $8/mo |
 | **Stable Video Diffusion** | Image → video | ❌ No lip sync | ❌ Local only | ⭐⭐⭐ | 5–15 min local | Free |
 | **Sora (OpenAI)** | Text → video | ❌ Indirect | ❌ No API | ⭐⭐⭐⭐⭐ | 2–5 min | $20/mo (ChatGPT Pro) |
+| **Wan2.1 (Alibaba)** | Text → video / Image → video | ❌ No lip sync | ✅ Local / HF | ⭐⭐⭐⭐⭐ | 2–5 min (A100) | Free (OSS) |
 
 > ⚠️ General video AI does not synchronise lips to audio — not suitable as a drop-in replacement for a talking-avatar pipeline without additional post-processing.
+
+#### Wan2.1 (Alibaba)
+
+```mermaid
+flowchart LR
+    A[Text prompt\nor image] -->|T2V / I2V| B[Wan2.1 Model\n1.3B or 14B params]
+    B --> C[High-quality video\nup to 1080p]
+    D[VACE / FantasyID\nadd-on modules] --> B
+
+    style B fill:#0f172a,stroke:#fb923c,color:#fff7ed
+```
+
+| Property | Detail |
+|----------|--------|
+| **Technique** | Diffusion Transformer (DiT), open-source |
+| **Developer** | Alibaba / Wan Video team |
+| **Models** | `Wan2.1-T2V-1.3B`, `Wan2.1-T2V-14B`, `Wan2.1-I2V-14B` |
+| **Input** | Text prompt (T2V) or image + prompt (I2V) |
+| **Output** | High-quality video clips, up to 1080p |
+| **Avatar support** | ❌ No lip sync — indirect via prompt engineering |
+| **VACE module** | Video creation + editing add-on; can do pose/motion control |
+| **FantasyID module** | Identity-preserving face generation add-on (portrait → video) |
+| **GPU RAM** | 1.3B: ~8 GB VRAM · 14B: ~20 GB VRAM |
+| **MPS (Apple Silicon)** | ⚠️ Experimental — CUDA recommended for 14B |
+| **Repo** | [Wan-Video/Wan2.1](https://github.com/Wan-Video/Wan2.1) |
+| **HuggingFace** | `Wan-AI/Wan2.1-T2V-14B` |
+| **Best for** | High-quality background scenes, cinematic human video (prompt-driven), pairing with a lip-sync model downstream |
+| **Limitation** | No audio conditioning; requires post-processing with Wav2Lip/MuseTalk for lip sync |
 
 ---
 
@@ -553,8 +644,11 @@ quadrantChart
     LivePortrait: [0.65, 0.70]
     MuseTalk: [0.60, 0.55]
     GeneFace++: [0.80, 0.30]
+    OmniHuman-1: [0.92, 0.25]
+    Wan2.1: [0.78, 0.60]
     D-ID: [0.60, 0.60]
     Hedra: [0.65, 0.65]
+    Creatify: [0.82, 0.52]
     Elai.io: [0.65, 0.55]
     Colossyan: [0.70, 0.45]
     Tavus: [0.85, 0.50]
@@ -569,10 +663,10 @@ quadrantChart
 ```mermaid
 xychart-beta
     title "Integration Effort (1=easy, 5=hard) vs Lip Sync Quality (1-5)"
-    x-axis ["Wav2Lip", "SadTalker", "LivePortrait", "MuseTalk", "GeneFace++", "D-ID", "Hedra", "Elai", "Tavus", "HeyGen", "Synthesia"]
+    x-axis ["Wav2Lip", "SadTalker", "LivePortrait", "MuseTalk", "GeneFace++", "OmniHuman", "D-ID", "Hedra", "Creatify", "Elai", "Tavus", "HeyGen", "Synthesia"]
     y-axis "Score" 1 --> 5
-    bar [2, 2.5, 3, 3.5, 5, 1.5, 1.5, 2, 1.5, 2, 2.5]
-    line [3, 4, 4.5, 4, 4.5, 4, 4, 4, 5, 5, 4.5]
+    bar [2, 2.5, 3, 3.5, 5, 4.5, 1.5, 1.5, 1.5, 2, 1.5, 2, 2.5]
+    line [3, 4, 4.5, 4, 4.5, 5, 4, 4, 4.5, 4, 5, 5, 4.5]
 ```
 
 > **Bar = Integration effort** (lower = easier to integrate)
@@ -602,15 +696,20 @@ flowchart TD
     Q6 -->|Full face needed| LIVE[LivePortrait]
 
     Q4 -->|Speed over quality| DID[D-ID\nor Hedra]
-    Q4 -->|Best quality| Q7{Custom brand avatar?}
+    Q4 -->|Best quality| Q7{Use case?}
 
-    Q7 -->|Yes — clone my face/voice| TAVUS[Tavus ✅ Current]
-    Q7 -->|Stock avatars OK| HEYGEN[HeyGen\nor Synthesia]
+    Q7 -->|Brand / personalization| TAVUS[Tavus ✅ Current]
+    Q7 -->|Ad creatives / short-form| CREATIFY[Creatify]
+    Q7 -->|Stock avatars / e-learning| HEYGEN[HeyGen\nor Synthesia]
+
+    Q3 -->|No GPU — general video| WAN[Wan2.1\nlocal T2V + downstream lip sync]
 
     style TAVUS fill:#1e1b4b,stroke:#6366f1,color:#e0e7ff
+    style CREATIFY fill:#1e1b4b,stroke:#f472b6,color:#fce7f3
     style LOCAL_FREE fill:#052e16,stroke:#10b981,color:#d1fae5
     style HEYGEN fill:#1e1b4b,stroke:#a78bfa,color:#e0e7ff
     style SaaS fill:#1c1917,stroke:#78716c,color:#f5f5f4
+    style WAN fill:#1c1917,stroke:#fb923c,color:#fff7ed
 ```
 
 ---
@@ -630,6 +729,9 @@ flowchart TD
 | **MuseTalk** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Free | ✅ Local | ✅ Any photo | Local + near real-time (CUDA) |
 | **Wav2Lip** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Free | ✅ Local | ✅ Any photo | Lightest model, re-dubbing |
 | **GeneFace++** | ⭐⭐⭐⭐⭐ | ⭐⭐ | Free | ✅ Local | ✅ Trained | Highest local quality with training |
+| **Creatify** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 💲💲 | ✅ | ✅ Digital Twin | Ad creatives, short-form social content |
+| **OmniHuman-1** | ⭐⭐⭐⭐⭐ | ⭐⭐ | Free (OSS) | ⚠️ Not yet | ✅ Any photo | Full-body animation — research preview only |
+| **Wan2.1** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | Free (OSS) | ✅ Local/HF | ❌ No lip sync | High-quality T2V/I2V; combine with lip-sync model |
 | **Runway Gen-3** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | 💲💲 | ✅ | ❌ No lip sync | Creative/cinematic, not avatar-specific |
 
 ---
