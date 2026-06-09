@@ -3,6 +3,10 @@ import type {
   VoiceDefinition,
   EmotionDefinition,
   CaptionStyleDefinition,
+  CaptionCustomization,
+  DurationDefinition,
+  OrientationDefinition,
+  CaptionStyle,
 } from "./types";
 
 // ─── Avatars ───
@@ -93,6 +97,12 @@ export const EMOTIONS: EmotionDefinition[] = [
     emoji: "💼",
     description: "Polished and business-ready",
   },
+  {
+    id: "sad",
+    label: "Sad",
+    emoji: "😢",
+    description: "Soft, heartfelt delivery",
+  },
 ];
 
 // ─── Caption Styles ───
@@ -117,13 +127,78 @@ export const CAPTION_STYLES: CaptionStyleDefinition[] = [
   },
 ];
 
+// ─── Caption Style Defaults ───
+export const CAPTION_STYLE_DEFAULTS: Record<CaptionStyle, CaptionCustomization> = {
+  viral: {
+    primaryColor: "#00FFFF",
+    outlineColor: "#000000",
+    fontSize: 60,
+    fontFamily: "Arial",
+    bold: true,
+    italic: false,
+    outlineThickness: 4,
+  },
+  professional: {
+    primaryColor: "#FFFFFF",
+    outlineColor: "#000000",
+    fontSize: 36,
+    fontFamily: "Arial",
+    bold: false,
+    italic: false,
+    outlineThickness: 2,
+  },
+  creator: {
+    primaryColor: "#FFFFFF",
+    outlineColor: "#000000",
+    fontSize: 48,
+    fontFamily: "Arial",
+    bold: true,
+    italic: false,
+    outlineThickness: 4,
+  },
+};
+
+// ─── Font Families ───
+export const FONT_FAMILIES = [
+  "Arial",
+  "Impact",
+  "Helvetica",
+  "Verdana",
+  "Georgia",
+  "Trebuchet MS",
+  "Times New Roman",
+];
+
+// ─── Sound Effect Definitions ───
+export const SOUND_EFFECT_DEFINITIONS = [
+  { id: "pop" as const,    label: "Pop",    emoji: "💥", description: "Quick snappy pop" },
+  { id: "ding" as const,   label: "Ding",   emoji: "🔔", description: "Bright bell tone" },
+  { id: "whoosh" as const, label: "Whoosh", emoji: "💨", description: "Swoosh sound" },
+];
+
+// ─── Durations ───
+export const DURATIONS: DurationDefinition[] = [
+  { id: "15", label: "15s", words: 37, description: "Quick clip" },
+  { id: "30", label: "30s", words: 75, description: "Short clip" },
+  { id: "60", label: "60s", words: 150, description: "Standard" },
+  { id: "90", label: "90s", words: 225, description: "Long form" },
+];
+
+// ─── Orientations ───
+export const ORIENTATIONS: OrientationDefinition[] = [
+  { id: "landscape", label: "Landscape", emoji: "📺", description: "16:9 — YouTube, Twitter" },
+  { id: "portrait", label: "Portrait (Reels)", emoji: "📱", description: "9:16 — TikTok, Reels, Shorts" },
+];
+
 // ─── Pipeline Steps ───
 export const PIPELINE_STEPS = [
-  { step: 1, label: "Processing Script", emoji: "✍️" },
+  { step: 1, label: "Processing Script",       emoji: "✍️" },
   { step: 2, label: "Creating Talking Avatar", emoji: "🎭" },
-  { step: 3, label: "Generating Captions", emoji: "📝" },
-  { step: 4, label: "Rendering Final Video", emoji: "🎬" },
-  { step: 5, label: "Complete", emoji: "✅" },
+  { step: 3, label: "Generating Captions",     emoji: "📝" },
+  { step: 4, label: "Adding Sound Effects",    emoji: "🔊" },
+  { step: 5, label: "Rendering Final Video",   emoji: "🎬" },
+  { step: 6, label: "Applying Format",         emoji: "📐" },
+  { step: 7, label: "Complete",                emoji: "✅" },
 ] as const;
 
-export const TOTAL_PIPELINE_STEPS = 5;
+export const TOTAL_PIPELINE_STEPS = 7;

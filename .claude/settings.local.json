@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip3 --version)",
+      "Bash(git --version)",
+      "Bash(ffprobe -v quiet -show_streams -of json /Users/adityaparmar/My/subMagic-avatar-poc/tmp/8158f48d-1cda-48c3-b7de-f164062eef06/avatar.mp4)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(s['codec_type'], s.get\\('width',''\\),s.get\\('height',''\\), s.get\\('r_frame_rate',''\\), s.get\\('duration',''\\)\\) for s in d['streams']]\")",
+      "Bash(npx tsc *)",
+      "Bash(bash *)",
+      "Bash(scripts/venv/bin/python -c \"import site; print\\(site.getsitepackages\\(\\)[0]\\)\")",
+      "Bash(sed -i '' 's/from torchvision.transforms.functional_tensor import rgb_to_grayscale/from torchvision.transforms.functional import rgb_to_grayscale/' __CMDSUB_OUTPUT__/basicsr/data/degradations.py)",
+      "Bash(grep rgb_to_grayscale __CMDSUB_OUTPUT__/basicsr/data/degradations.py)",
+      "Bash(../venv/bin/python -c \"from src.facerender.animate import AnimateFromCoeff; print\\('SadTalker imports OK'\\)\")",
+      "Bash(scripts/venv/bin/python *)",
+      "Bash(/Users/adityaparmar/My/subMagic-avatar-poc/scripts/venv/bin/python *)",
+      "Bash(/Users/adityaparmar/My/subMagic-avatar-poc/scripts/venv/bin/pip show *)",
+      "Bash(curl -s -X GET \"https://tavusapi.com/v2/replicas\" -H \"x-api-key: d0753e5a059c46348af35d6f5e8d130b\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 *)",
+      "Bash(git remote *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(gh repo *)",
+      "Bash(curl *)"
+    ]
+  }
+}

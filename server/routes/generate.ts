@@ -8,14 +8,16 @@ import { createSessionDir, newSessionId } from "../services/storage.ts";
 import { generateTalkingAvatar } from "../services/lipsync.ts";
 import { transcribeAudio } from "../services/transcription.ts";
 import { generateASS } from "../services/captions.ts";
-import { burnCaptions, extractAudio } from "../services/video.ts";
+import { burnCaptions, extractAudio, transformVideo } from "../services/video.ts";
+import { mixSoundEffects, matchUserWordEffects } from "../services/sfx.ts";
+import { CAPTION_STYLE_DEFAULTS } from "../../src/lib/constants.ts";
 
 const router = new Router();
 
 router.post("/api/generate-video", async (ctx) => {
   const body = ctx.request.body as GenerateRequest;
 
-  if (!body.avatar || !body.script || !body.voice || !body.emotion || !body.captionStyle) {
+  if (!body.avatar || !body.script || !body.voice || !body.emotion || !body.captionStyle || !body.duration || !body.orientation) {
     ctx.status = 400;
     ctx.body = { success: false, error: "Missing required fields" };
     return;
@@ -61,8 +63,8 @@ router.post("/api/generate-video", async (ctx) => {
   try {
     // ── Step 1: Enhance script with Gemini ──
     sendProgress(1, "Processing Script — Enhancing with AI...");
-    console.log(`[pipeline:${sessionId}] Step 1: Enhancing script`);
-    const enhancedScript = await enhanceScript(body.script, body.emotion);
+    console.log(`[pipeline:${sessionId}] Step 1: Enhancing script (emotion=${body.emotion}, duration=${body.duration}s)`);
+    const enhancedScript = await enhanceScript(body.script, body.emotion, body.duration);
 
     // ── Step 2: Generate talking avatar with Tavus ──
     sendProgress(2, "Creating Talking Avatar — Submitting to Tavus...");
@@ -86,18 +88,47 @@ router.post("/api/generate-video", async (ctx) => {
     const transcription = await transcribeAudio(extractedAudioPath);
     console.log(`[pipeline:${sessionId}] ${transcription.words.length} words`);
 
-    const assContent = generateASS(transcription, body.captionStyle);
+    const customization = body.captionCustomization ?? CAPTION_STYLE_DEFAULTS[body.captionStyle];
+    const assContent = generateASS(transcription, body.captionStyle, customization);
     const assPath = path.join(sessionDir, "captions.ass");
     await fs.promises.writeFile(assPath, assContent, "utf-8");
 
-    // ── Step 4: Burn captions ──
-    sendProgress(4, "Rendering Final Video — Burning captions...");
-    console.log(`[pipeline:${sessionId}] Step 4: Burning captions`);
-    const finalVideoPath = path.join(sessionDir, "final.mp4");
-    await burnCaptions(avatarVideoPath, assPath, finalVideoPath);
+    // ── Step 4: Sound effects ──
+    const userSelections = body.soundEffectWords ?? [];
+    const sfxInputPath  = path.join(sessionDir, "avatar.mp4");
+    const sfxOutputPath = path.join(sessionDir, "avatar_sfx.mp4");
 
-    // ── Step 5: Done ──
-    sendProgress(5, "Complete — Your video is ready!");
+    if (userSelections.length > 0) {
+      sendProgress(4, `Adding Sound Effects — Matching ${userSelections.length} word(s)...`);
+      console.log(`[pipeline:${sessionId}] Step 4: matching ${userSelections.length} user-selected word(s)`);
+      try {
+        const effects = matchUserWordEffects(userSelections, transcription.words);
+        sendProgress(4, `Adding Sound Effects — Mixing ${effects.length} effect(s)...`);
+        await mixSoundEffects(sfxInputPath, sfxOutputPath, effects, sessionDir);
+        console.log(`[pipeline:${sessionId}] Mixed ${effects.length} effect(s)`);
+      } catch (sfxErr: any) {
+        console.warn(`[pipeline:${sessionId}] Sound effects failed (continuing): ${sfxErr.message}`);
+        await fs.promises.copyFile(sfxInputPath, sfxOutputPath);
+      }
+    } else {
+      sendProgress(4, "Adding Sound Effects — None selected");
+      await fs.promises.copyFile(sfxInputPath, sfxOutputPath);
+    }
+
+    // ── Step 5: Burn captions ──
+    sendProgress(5, "Rendering Final Video — Burning captions...");
+    console.log(`[pipeline:${sessionId}] Step 5: Burning captions`);
+    const captionedVideoPath = path.join(sessionDir, "captioned.mp4");
+    await burnCaptions(sfxOutputPath, assPath, captionedVideoPath);
+
+    // ── Step 6: Apply orientation ──
+    sendProgress(6, `Applying Format — ${body.orientation === "portrait" ? "9:16 portrait" : "16:9 landscape"}...`);
+    console.log(`[pipeline:${sessionId}] Step 6: orientation=${body.orientation}`);
+    const finalVideoPath = path.join(sessionDir, "final.mp4");
+    await transformVideo(captionedVideoPath, finalVideoPath, body.orientation);
+
+    // ── Step 7: Done ──
+    sendProgress(7, "Complete — Your video is ready!");
     sendComplete(`/api/video/${sessionId}`);
     console.log(`[pipeline:${sessionId}] Done!`);
 

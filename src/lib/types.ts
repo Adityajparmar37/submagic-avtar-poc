@@ -11,10 +11,17 @@ export type EmotionOption =
   | "happy"
   | "excited"
   | "motivational"
-  | "professional";
+  | "professional"
+  | "sad";
 
 // ─── Caption Styles ───
 export type CaptionStyle = "viral" | "professional" | "creator";
+
+// ─── Video Duration (seconds) ───
+export type VideoDuration = "15" | "30" | "60" | "90";
+
+// ─── Video Orientation ───
+export type VideoOrientation = "landscape" | "portrait";
 
 // ─── Request / Response ───
 export interface GenerateRequest {
@@ -23,6 +30,26 @@ export interface GenerateRequest {
   voice: VoiceOption;
   emotion: EmotionOption;
   captionStyle: CaptionStyle;
+  duration: VideoDuration;
+  orientation: VideoOrientation;
+  captionCustomization?: CaptionCustomization;
+  soundEffectWords?: UserWordEffect[];
+}
+
+// ─── Duration Definition ───
+export interface DurationDefinition {
+  id: VideoDuration;
+  label: string;
+  words: number;
+  description: string;
+}
+
+// ─── Orientation Definition ───
+export interface OrientationDefinition {
+  id: VideoOrientation;
+  label: string;
+  emoji: string;
+  description: string;
 }
 
 export interface GenerateResponse {
@@ -93,4 +120,33 @@ export interface CaptionStyleDefinition {
   label: string;
   description: string;
   emoji: string;
+}
+
+// ─── Caption Customization ───
+export interface CaptionCustomization {
+  primaryColor: string;       // CSS hex "#RRGGBB"
+  outlineColor: string;       // CSS hex "#RRGGBB"
+  fontSize: number;           // points
+  fontFamily: string;
+  bold: boolean;
+  italic: boolean;
+  outlineThickness: number;   // 0–8
+}
+
+// ─── Sound Effects ───
+export type SoundEffectType = "pop" | "ding" | "whoosh";
+
+// User-specified effect selection (before timestamp resolution)
+export interface UserWordEffect {
+  wordPosition: number;    // 0-based index in the original script words array
+  word: string;            // raw word as typed (may include punctuation)
+  effectType: SoundEffectType;
+}
+
+// Resolved effect with audio timestamp (used internally after transcription)
+export interface WordEffect {
+  wordIndex: number;
+  word: string;
+  timestamp: number;       // seconds into the audio
+  effectType: SoundEffectType;
 }

@@ -1,5 +1,6 @@
 import ffmpeg from "fluent-ffmpeg";
 import path from "path";
+import type { VideoOrientation } from "../../src/lib/types.ts";
 
 /**
  * Burn ASS subtitles into a video using FFmpeg.
@@ -61,6 +62,53 @@ export function extractAudio(videoPath: string, audioPath: string): Promise<void
       .output(audioPath)
       .on("end", () => resolve())
       .on("error", (err) => reject(new Error(`extractAudio failed: ${err.message}`)))
+      .run();
+  });
+}
+
+/**
+ * Apply orientation and background transforms to a video.
+ * - landscape: pass-through (no change)
+ * - portrait:  scale to 1080 width and pad to 1080×1920 with the chosen background color
+ */
+export function transformVideo(
+  inputPath: string,
+  outputPath: string,
+  orientation: VideoOrientation
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (orientation === "landscape") {
+      // No transform needed — just copy
+      ffmpeg(inputPath)
+        .outputOptions(["-c copy"])
+        .output(outputPath)
+        .on("end", () => resolve())
+        .on("error", (err) => reject(new Error(`transformVideo copy failed: ${err.message}`)))
+        .run();
+      return;
+    }
+
+    // Portrait 9:16: scale to fit 1080 width, pad to 1080×1920 with black bars
+    // scale=1080:-2 keeps aspect ratio, ensures even height
+    // pad=1080:1920:0:(1920-ih)/2 centers vertically
+    const vf = `scale=1080:-2,pad=1080:1920:0:(1920-ih)/2:0x000000`;
+
+    console.log(`[video] Portrait transform — bg ${bgColor}`);
+    ffmpeg(inputPath)
+      .videoFilters(vf)
+      .outputOptions([
+        "-c:v libx264",
+        "-preset fast",
+        "-crf 23",
+        "-c:a copy",
+        "-movflags +faststart",
+      ])
+      .output(outputPath)
+      .on("end", () => {
+        console.log("[video] Portrait transform complete.");
+        resolve();
+      })
+      .on("error", (err) => reject(new Error(`transformVideo failed: ${err.message}`)))
       .run();
   });
 }

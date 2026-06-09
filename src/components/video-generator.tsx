@@ -1,14 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AvatarGallery from "./avatar-gallery";
 import ScriptEditor from "./script-editor";
-import { VoiceSelector, EmotionSelector, CaptionStyleSelector } from "./option-selectors";
+import {
+  VoiceSelector,
+  EmotionSelector,
+  CaptionStyleSelector,
+  DurationSelector,
+  OrientationSelector,
+} from "./option-selectors";
+import CaptionCustomizer from "./caption-customizer";
+import WordEffectSelector from "./word-effect-selector";
 import ProgressIndicator from "./progress-indicator";
 import VideoPreview from "./video-preview";
+import { CAPTION_STYLE_DEFAULTS } from "../lib/constants";
 import type {
   AvatarDefinition,
   VoiceOption,
   EmotionOption,
   CaptionStyle,
+  CaptionCustomization,
+  VideoDuration,
+  VideoOrientation,
+  UserWordEffect,
   PipelineProgress,
   PipelineResult,
 } from "../lib/types";
@@ -25,7 +38,18 @@ export default function VideoGenerator() {
   const [voice, setVoice] = useState<VoiceOption>("professional-female");
   const [emotion, setEmotion] = useState<EmotionOption>("professional");
   const [captionStyle, setCaptionStyle] = useState<CaptionStyle>("viral");
+  const [duration, setDuration] = useState<VideoDuration>("30");
+  const [orientation, setOrientation] = useState<VideoOrientation>("landscape");
+  const [captionCustomization, setCaptionCustomization] = useState<CaptionCustomization>(
+    CAPTION_STYLE_DEFAULTS[captionStyle]
+  );
+  const [soundEffectWords, setSoundEffectWords] = useState<UserWordEffect[]>([]);
   const [state, setState] = useState<State>({ phase: "idle" });
+
+  // Reset caption customization when the style preset changes
+  useEffect(() => {
+    setCaptionCustomization(CAPTION_STYLE_DEFAULTS[captionStyle]);
+  }, [captionStyle]);
 
   const isGenerating = state.phase === "generating";
   const canGenerate =
@@ -45,6 +69,10 @@ export default function VideoGenerator() {
         voice,
         emotion,
         captionStyle,
+        duration,
+        orientation,
+        captionCustomization,
+        soundEffectWords,
       };
 
       const res = await fetch("/api/generate-video", {
@@ -135,9 +163,22 @@ export default function VideoGenerator() {
             <VoiceSelector value={voice} onChange={setVoice} disabled={isGenerating} />
             <EmotionSelector value={emotion} onChange={setEmotion} disabled={isGenerating} />
           </div>
+          <DurationSelector value={duration} onChange={setDuration} disabled={isGenerating} />
+          <OrientationSelector value={orientation} onChange={setOrientation} disabled={isGenerating} />
           <CaptionStyleSelector
             value={captionStyle}
             onChange={setCaptionStyle}
+            disabled={isGenerating}
+          />
+          <CaptionCustomizer
+            value={captionCustomization}
+            onChange={setCaptionCustomization}
+            disabled={isGenerating}
+          />
+          <WordEffectSelector
+            script={script}
+            selections={soundEffectWords}
+            onChange={setSoundEffectWords}
             disabled={isGenerating}
           />
         </div>
