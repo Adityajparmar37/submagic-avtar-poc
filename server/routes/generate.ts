@@ -66,6 +66,9 @@ router.post("/api/generate-video", async (ctx) => {
     console.log(`[pipeline:${sessionId}] Step 1: Enhancing script (emotion=${body.emotion}, duration=${body.duration}s)`);
     const enhancedScript = await enhanceScript(body.script, body.emotion, body.duration);
 
+    // Save script for thumbnail generation context
+    await fs.promises.writeFile(path.join(sessionDir, "script.txt"), enhancedScript, "utf-8");
+
     // ── Step 2: Generate talking avatar with Tavus ──
     sendProgress(2, "Creating Talking Avatar — Submitting to Tavus...");
     console.log(`[pipeline:${sessionId}] Step 2: Tavus avatar`);

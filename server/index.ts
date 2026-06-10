@@ -8,6 +8,7 @@ import fs from "fs";
 import generateRouter from "./routes/generate.ts";
 import videoRouter from "./routes/video.ts";
 import cleanupRouter from "./routes/cleanup.ts";
+import thumbnailRouter from "./routes/thumbnail.ts";
 
 const app = new Koa();
 const PORT = parseInt(process.env.PORT || "3001", 10);
@@ -46,6 +47,7 @@ app.use(async (ctx, next) => {
 app.use(generateRouter.routes()).use(generateRouter.allowedMethods());
 app.use(videoRouter.routes()).use(videoRouter.allowedMethods());
 app.use(cleanupRouter.routes()).use(cleanupRouter.allowedMethods());
+app.use(thumbnailRouter.routes()).use(thumbnailRouter.allowedMethods());
 
 // ─── Health check ───
 app.use(async (ctx) => {

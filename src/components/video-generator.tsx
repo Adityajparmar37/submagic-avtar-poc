@@ -131,6 +131,10 @@ export default function VideoGenerator() {
   }
 
   function handleReset() {
+    // Clean up temp session files when the user is done
+    if (state.phase === "done") {
+      fetch(`/api/cleanup/${state.sessionId}`, { method: "DELETE" }).catch(() => {});
+    }
     setState({ phase: "idle" });
     setScript("");
     setAvatar(null);

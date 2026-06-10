@@ -93,7 +93,7 @@ export function transformVideo(
     // pad=1080:1920:0:(1920-ih)/2 centers vertically
     const vf = `scale=1080:-2,pad=1080:1920:0:(1920-ih)/2:0x000000`;
 
-    console.log(`[video] Portrait transform — bg ${bgColor}`);
+    console.log("[video] Portrait transform — 1080x1920 black bars");
     ffmpeg(inputPath)
       .videoFilters(vf)
       .outputOptions([

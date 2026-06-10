@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import ThumbnailGenerator from "./thumbnail-generator";
 
 interface Props {
   videoUrl: string;
@@ -21,9 +22,6 @@ export default function VideoPreview({ videoUrl, onReset, sessionId }: Props) {
       a.download = `submagic-avatar-${sessionId}.mp4`;
       a.click();
       URL.revokeObjectURL(url);
-
-      // Cleanup temp files after download
-      await fetch(`/api/cleanup/${sessionId}`, { method: "DELETE" }).catch(() => {});
     } finally {
       setDownloading(false);
     }
@@ -84,6 +82,9 @@ export default function VideoPreview({ videoUrl, onReset, sessionId }: Props) {
           </button>
         </div>
       </div>
+
+      {/* Thumbnail generator */}
+      <ThumbnailGenerator sessionId={sessionId} />
     </div>
   );
 }
