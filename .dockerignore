@@ -1,0 +1,8 @@
+node_modules
+dist
+tmp
+.env
+.env.local
+scripts/LivePortrait
+scripts/SadTalker
+*.pdf

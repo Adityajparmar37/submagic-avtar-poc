@@ -14,6 +14,7 @@ import TavusOptionsPanel from "./tavus-options";
 import ProgressIndicator from "./progress-indicator";
 import VideoPreview from "./video-preview";
 import { CAPTION_STYLE_DEFAULTS } from "../lib/constants";
+import { apiUrl } from "../lib/api";
 import type {
   AvatarDefinition,
   VoiceOption,
@@ -81,7 +82,7 @@ export default function VideoGenerator() {
         tavusOptions,
       };
 
-      const res = await fetch("/api/generate-video", {
+      const res = await fetch(apiUrl("/api/generate-video"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -121,9 +122,12 @@ export default function VideoGenerator() {
           if (event.type === "progress") {
             setState({ phase: "generating", progress: event.data as PipelineProgress });
           } else if (event.type === "complete") {
-            const { videoUrl, tokenUsage } = event.data as PipelineComplete;
+            const { videoUrl: rawVideoUrl, tokenUsage } = event.data as PipelineComplete;
             // Extract session ID from URL: /api/video/{sessionId}
-            const sessionId = videoUrl.split("/").pop() ?? "";
+            const sessionId = rawVideoUrl.split("/").pop() ?? "";
+            // Make the video URL absolute so it works when the API is on a
+            // different origin (Vercel frontend → Railway backend).
+            const videoUrl = apiUrl(rawVideoUrl);
             setState({ phase: "done", videoUrl, sessionId, tokenUsage });
           } else if (event.type === "error") {
             const { error } = event.data as { error: string };
@@ -139,7 +143,7 @@ export default function VideoGenerator() {
   function handleReset() {
     // Clean up temp session files when the user is done
     if (state.phase === "done") {
-      fetch(`/api/cleanup/${state.sessionId}`, { method: "DELETE" }).catch(() => {});
+      fetch(apiUrl(`/api/cleanup/${state.sessionId}`), { method: "DELETE" }).catch(() => {});
     }
     setState({ phase: "idle" });
     setScript("");

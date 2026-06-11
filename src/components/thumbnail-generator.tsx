@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "../lib/api";
 
 type ThumbnailStyle = "engaging" | "normal" | "cinematic" | "professional" | "dynamic";
 
@@ -58,7 +59,7 @@ export default function ThumbnailGenerator({ sessionId }: Props) {
     setThumbnailUrl(null);
 
     try {
-      const res = await fetch(`/api/thumbnail/${sessionId}`, {
+      const res = await fetch(apiUrl(`/api/thumbnail/${sessionId}`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ style: selectedStyle }),
@@ -71,7 +72,7 @@ export default function ThumbnailGenerator({ sessionId }: Props) {
       }
 
       // Cache-bust so the browser always fetches the new image
-      setThumbnailUrl(`${data.thumbnailUrl}?t=${Date.now()}`);
+      setThumbnailUrl(`${apiUrl(data.thumbnailUrl)}?t=${Date.now()}`);
     } catch {
       setError("Failed to connect to the server");
     } finally {

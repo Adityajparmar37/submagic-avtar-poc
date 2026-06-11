@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import ThumbnailGenerator from "./thumbnail-generator";
+import { apiUrl } from "../lib/api";
 import type { PipelineTokenUsage } from "../lib/types";
 
 interface Props {
@@ -16,7 +17,7 @@ export default function VideoPreview({ videoUrl, onReset, sessionId, tokenUsage 
   async function handleDownload() {
     setDownloading(true);
     try {
-      const res = await fetch(`/api/video/${sessionId}/download`);
+      const res = await fetch(apiUrl(`/api/video/${sessionId}/download`));
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
