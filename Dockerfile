@@ -2,7 +2,10 @@ FROM node:22-alpine
 
 # FFmpeg is required for caption burn, audio extraction, SFX mixing, and
 # orientation transforms.
-RUN apk add --no-cache ffmpeg
+# ffmpeg for video processing
+# fontconfig + ttf-dejavu so libass can render ASS subtitles (captions).
+# Without fonts installed, ffmpeg silently produces video with no captions.
+RUN apk add --no-cache ffmpeg fontconfig ttf-dejavu && fc-cache -f
 
 WORKDIR /app
 

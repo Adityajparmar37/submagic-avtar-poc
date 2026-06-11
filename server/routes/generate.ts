@@ -140,6 +140,26 @@ router.post("/api/generate-video", async (ctx) => {
         totalTokens:  scriptTokens.totalTokens,
       },
     };
+
+    // Save metadata so the History tab can list this session later
+    const metadata = {
+      sessionId,
+      createdAt: new Date().toISOString(),
+      avatarId,
+      emotion:      body.emotion,
+      voice:        body.voice,
+      duration:     body.duration,
+      orientation:  body.orientation,
+      captionStyle: body.captionStyle,
+      scriptSnippet: enhancedScript.slice(0, 120),
+      tokenUsage,
+    };
+    await fs.promises.writeFile(
+      path.join(sessionDir, "metadata.json"),
+      JSON.stringify(metadata, null, 2),
+      "utf-8"
+    );
+
     console.log(
       `[pipeline:${sessionId}] Token summary — script: input=${scriptTokens.inputTokens} output=${scriptTokens.outputTokens} total=${scriptTokens.totalTokens}`
     );
