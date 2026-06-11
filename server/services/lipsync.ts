@@ -101,10 +101,12 @@ export async function generateTalkingAvatar(
   if (options.backgroundColor)  videoBody.background_color = options.backgroundColor;
   if (options.language)         videoBody.language         = options.language;
 
-  const properties: Record<string, unknown> = {};
+  const properties: Record<string, unknown> = {
+    tts_emotion_control: true,  // enables <emotion value="X"/> tag interpretation on Phoenix-4
+  };
   if (options.applyGreenscreen) properties.apply_greenscreen = true;
   if (options.disableWatermark) properties.disable_watermark = true;
-  if (Object.keys(properties).length > 0) videoBody.properties = properties;
+  videoBody.properties = properties;
 
   const created = await tavusPost("/v2/videos", videoBody) as { video_id: string };
 

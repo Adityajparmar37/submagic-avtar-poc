@@ -52,6 +52,16 @@ const EMOTION_STYLE_GUIDE: Record<string, string> = {
   sad:          "Soft, heartfelt, and gentle. Use slower pacing cues like ellipses where natural pauses belong. Empathetic language.",
 };
 
+// Map app emotion → primary Tavus emotion tag value + allowed secondary emotions for variety
+const EMOTION_TAVUS_MAP: Record<string, { primary: string; secondary: string[] }> = {
+  neutral:      { primary: "neutral",  secondary: ["content"] },
+  happy:        { primary: "elated",   secondary: ["content", "excited"] },
+  excited:      { primary: "excited",  secondary: ["elated"] },
+  motivational: { primary: "excited",  secondary: ["elated", "content"] },
+  professional: { primary: "content",  secondary: ["neutral"] },
+  sad:          { primary: "sad",      secondary: ["dejected", "neutral"] },
+};
+
 /**
  * Enhance a user script using Gemini 2.5 Flash.
  * Targets a specific word count for the desired duration.
@@ -65,6 +75,7 @@ export async function enhanceScript(
 ): Promise<{ text: string; tokens: TokenUsage }> {
   const targetWords = DURATION_WORD_TARGETS[duration] ?? 75;
   const styleGuide = EMOTION_STYLE_GUIDE[emotion] ?? EMOTION_STYLE_GUIDE.neutral;
+  const tavus = EMOTION_TAVUS_MAP[emotion] ?? EMOTION_TAVUS_MAP.neutral;
 
   const prompt = `You are a professional script writer for short-form video content.
 
@@ -82,7 +93,18 @@ INSTRUCTIONS:
 - Keep the core message and meaning intact
 - Do NOT add stage directions, action descriptions, or formatting markers
 - Do NOT add quotation marks around the output
-- Return ONLY the improved script text, nothing else
+- Return ONLY the improved script text with emotion tags, nothing else
+
+FACIAL EXPRESSION TAGS (REQUIRED):
+The avatar renderer supports <emotion value="X"/> XML tags that shift the avatar's facial expression.
+Insert these tags inline with the script text at sentence boundaries where the expression should shift.
+Available values: neutral, angry, excited, elated, content, sad, dejected, scared, contempt, disgusted, surprised
+Rules:
+- Open the script with <emotion value="${tavus.primary}"/> to set the dominant expression
+- Add 2–4 more tags throughout at natural emotional peaks or transitions
+- Primarily use "${tavus.primary}"; secondary options for variety: ${tavus.secondary.join(", ")}
+- Do NOT tag every sentence — only tag where the expression meaningfully shifts
+- Place tags immediately before the sentence they apply to, on the same line
 
 ORIGINAL SCRIPT:
 ${rawScript}`;

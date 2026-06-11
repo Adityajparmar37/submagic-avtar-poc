@@ -30,7 +30,10 @@
       "Read(//private/tmp/**)",
       "Bash(pandoc --version)",
       "Bash(npx --yes md-to-pdf --version)",
-      "Bash(npx md-to-pdf *)"
+      "Bash(npx md-to-pdf *)",
+      "Skill(deep-research)",
+      "WebSearch",
+      "WebFetch(domain:docs.tavus.io)"
     ]
   }
 }
