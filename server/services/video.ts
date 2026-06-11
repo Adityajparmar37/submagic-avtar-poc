@@ -25,10 +25,12 @@ export function burnCaptions(
       .videoFilters(`ass=${escapedAssPath}`)
       .outputOptions([
         "-c:v libx264",
-        "-preset fast",
+        "-preset ultrafast",      // fast → ultrafast: ~4× less RAM on Railway
         "-crf 23",
+        "-threads 1",             // single-threaded: prevents OOM on 512MB containers
         "-c:a copy",
         "-movflags +faststart",
+        "-max_muxing_queue_size 1024",
       ])
       .output(outputPath)
       .on("start", (cmd) => {
@@ -98,10 +100,12 @@ export function transformVideo(
       .videoFilters(vf)
       .outputOptions([
         "-c:v libx264",
-        "-preset fast",
+        "-preset ultrafast",
         "-crf 23",
+        "-threads 1",
         "-c:a copy",
         "-movflags +faststart",
+        "-max_muxing_queue_size 1024",
       ])
       .output(outputPath)
       .on("end", () => {
