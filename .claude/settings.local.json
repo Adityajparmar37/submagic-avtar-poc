@@ -27,7 +27,10 @@
       "Bash(fc-list)",
       "Bash(ffmpeg -y -f lavfi -i color=c=slategray:s=1280x720 -vf 'drawbox=x=430:y=0:w=90:h=720:color=0x8B0000@0.18:t=fill,drawbox=x=470:y=0:w=52:h=720:color=0x8B0000@0.38:t=fill,drawbox=x=500:y=0:w=20:h=720:color=0x8B0000@0.62:t=fill,drawbox=x=520:y=0:w=760:h=720:color=0x8B0000@0.88:t=fill,drawtext=fontfile='\\\\''/System/Library/Fonts/Supplemental/Impact.ttf'\\\\'':text='\\\\''MIND BLOWN'\\\\'':fontsize=78:fontcolor=white:borderw=6:bordercolor=black:x=548:y=130:fix_bounds=1,drawtext=fontfile='\\\\''/System/Library/Fonts/Supplemental/Impact.ttf'\\\\'':text='\\\\''SEE NOW'\\\\'':fontsize=56:fontcolor=0xFFE600:borderw=5:bordercolor=black:x=548:y=240:fix_bounds=1' -vframes 1 /tmp/thumb_test.jpg)",
       "Bash(ffmpeg -y -f lavfi -i color=c=slategray:s=1280x720 -update 1 -vf 'drawbox=x=430:y=0:w=90:h=720:color=0x8B0000@0.18:t=fill,drawbox=x=470:y=0:w=52:h=720:color=0x8B0000@0.38:t=fill,drawbox=x=502:y=0:w=20:h=720:color=0x8B0000@0.62:t=fill,drawbox=x=520:y=0:w=760:h=720:color=0x8B0000@0.88:t=fill,drawtext=fontfile='\\\\''/System/Library/Fonts/Supplemental/Impact.ttf'\\\\'':text='\\\\''MIND BLOWN'\\\\'':fontsize=78:fontcolor=white:borderw=6:bordercolor=black:x=548:y=130:fix_bounds=1,drawtext=fontfile='\\\\''/System/Library/Fonts/Supplemental/Impact.ttf'\\\\'':text='\\\\''SEE NOW'\\\\'':fontsize=56:fontcolor=0xFFE600:borderw=5:bordercolor=black:x=548:y=240:fix_bounds=1' -vframes 1 /tmp/thumb_test.jpg)",
-      "Read(//private/tmp/**)"
+      "Read(//private/tmp/**)",
+      "Bash(pandoc --version)",
+      "Bash(npx --yes md-to-pdf --version)",
+      "Bash(npx md-to-pdf *)"
     ]
   }
 }

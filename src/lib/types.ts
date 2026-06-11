@@ -58,6 +58,19 @@ export interface GenerateResponse {
   error?: string;
 }
 
+// ─── Token Usage ───
+export interface TokenUsage {
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+}
+
+export interface PipelineTokenUsage {
+  scriptEnhancement?: TokenUsage;
+  soundEffectAnalysis?: TokenUsage;
+  total: TokenUsage;
+}
+
 // ─── Pipeline Progress (sent via SSE) ───
 export interface PipelineProgress {
   step: number;
@@ -66,9 +79,14 @@ export interface PipelineProgress {
   message: string;
 }
 
+export interface PipelineComplete {
+  videoUrl: string;
+  tokenUsage?: PipelineTokenUsage;
+}
+
 export interface PipelineResult {
   type: "progress" | "complete" | "error";
-  data: PipelineProgress | { videoUrl: string } | { error: string };
+  data: PipelineProgress | PipelineComplete | { error: string };
 }
 
 // ─── Transcription Data ───

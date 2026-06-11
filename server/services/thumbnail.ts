@@ -88,6 +88,12 @@ Return ONLY valid JSON (no markdown fences):
       model:"gemini-2.5-flash",
       contents:[{role:"user",parts:[{text:prompt},{inlineData:{mimeType:"image/jpeg",data:frameB64}}]}] as any,
     });
+    const meta = (r as any).usageMetadata;
+    if (meta) {
+      console.log(
+        `[gemini:tokens] generateConcept (thumbnail) — input=${meta.promptTokenCount ?? 0} output=${meta.candidatesTokenCount ?? 0} total=${meta.totalTokenCount ?? 0}`
+      );
+    }
     const m = (r.text??'').match(/\{[\s\S]*\}/);
     if (!m) return defaults;
     const p = JSON.parse(m[0]);

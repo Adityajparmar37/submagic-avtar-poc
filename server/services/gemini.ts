@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import type { WordTimestamp, SoundEffectType, WordEffect } from "../../src/lib/types.ts";
+import type { WordTimestamp, SoundEffectType, WordEffect, TokenUsage } from "../../src/lib/types.ts";
 
 const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
@@ -8,6 +8,21 @@ const RETRY_DELAY_MS = 2000;
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+function extractTokens(response: any): TokenUsage {
+  const meta = response.usageMetadata;
+  return {
+    inputTokens:  meta?.promptTokenCount     ?? 0,
+    outputTokens: meta?.candidatesTokenCount  ?? 0,
+    totalTokens:  meta?.totalTokenCount       ?? 0,
+  };
+}
+
+function logTokens(label: string, tokens: TokenUsage) {
+  console.log(
+    `[gemini:tokens] ${label} — input=${tokens.inputTokens} output=${tokens.outputTokens} total=${tokens.totalTokens}`
+  );
 }
 
 function is503(err: any): boolean {
@@ -47,7 +62,7 @@ export async function enhanceScript(
   rawScript: string,
   emotion: string,
   duration: string = "30"
-): Promise<string> {
+): Promise<{ text: string; tokens: TokenUsage }> {
   const targetWords = DURATION_WORD_TARGETS[duration] ?? 75;
   const styleGuide = EMOTION_STYLE_GUIDE[emotion] ?? EMOTION_STYLE_GUIDE.neutral;
 
@@ -81,8 +96,10 @@ ${rawScript}`;
       const enhanced = response.text?.trim();
       if (enhanced) {
         const wordCount = enhanced.split(/\s+/).length;
+        const tokens = extractTokens(response);
+        logTokens("enhanceScript", tokens);
         console.log(`[gemini] Script enhanced (attempt ${attempt}) — ${wordCount} words, target ${targetWords}`);
-        return enhanced;
+        return { text: enhanced, tokens };
       }
     } catch (err: any) {
       if (is503(err) && attempt < RETRIES) {
@@ -98,7 +115,7 @@ ${rawScript}`;
 
   // Gemini unavailable — use the original script so the pipeline continues
   console.warn("[gemini] Using original script as fallback (Gemini unavailable)");
-  return rawScript;
+  return { text: rawScript, tokens: { inputTokens: 0, outputTokens: 0, totalTokens: 0 } };
 }
 
 /**
@@ -109,9 +126,10 @@ export async function analyzeSoundEffects(
   words: WordTimestamp[],
   emotion: string,
   script: string
-): Promise<WordEffect[]> {
+): Promise<{ effects: WordEffect[]; tokens: TokenUsage }> {
+  const noTokens: TokenUsage = { inputTokens: 0, outputTokens: 0, totalTokens: 0 };
   // Sad emotion gets no sound effects
-  if (emotion === "sad" || words.length === 0) return [];
+  if (emotion === "sad" || words.length === 0) return { effects: [], tokens: noTokens };
 
   const wordList = words
     .map((w, i) => `${i}: "${w.word}" (${w.start.toFixed(2)}s)`)
@@ -168,10 +186,12 @@ Example: [{"wordIndex":3,"effectType":"pop"},{"wordIndex":11,"effectType":"ding"
       effectType: item.effectType as SoundEffectType,
     }));
 
+    const tokens = extractTokens(response);
+    logTokens("analyzeSoundEffects", tokens);
     console.log(`[gemini] Sound effects: ${effects.map((e) => `"${e.word}"→${e.effectType}`).join(", ")}`);
-    return effects;
+    return { effects, tokens };
   } catch (err: any) {
     console.warn("[gemini] analyzeSoundEffects failed:", err?.message);
-    return [];
+    return { effects: [], tokens: noTokens };
   }
 }

@@ -24,12 +24,14 @@ import type {
   UserWordEffect,
   PipelineProgress,
   PipelineResult,
+  PipelineComplete,
+  PipelineTokenUsage,
 } from "../lib/types";
 
 type State =
   | { phase: "idle" }
   | { phase: "generating"; progress: PipelineProgress | null }
-  | { phase: "done"; videoUrl: string; sessionId: string }
+  | { phase: "done"; videoUrl: string; sessionId: string; tokenUsage?: PipelineTokenUsage }
   | { phase: "error"; message: string };
 
 export default function VideoGenerator() {
@@ -115,10 +117,10 @@ export default function VideoGenerator() {
           if (event.type === "progress") {
             setState({ phase: "generating", progress: event.data as PipelineProgress });
           } else if (event.type === "complete") {
-            const { videoUrl } = event.data as { videoUrl: string };
+            const { videoUrl, tokenUsage } = event.data as PipelineComplete;
             // Extract session ID from URL: /api/video/{sessionId}
             const sessionId = videoUrl.split("/").pop() ?? "";
-            setState({ phase: "done", videoUrl, sessionId });
+            setState({ phase: "done", videoUrl, sessionId, tokenUsage });
           } else if (event.type === "error") {
             const { error } = event.data as { error: string };
             setState({ phase: "error", message: error });
@@ -279,6 +281,7 @@ export default function VideoGenerator() {
           <VideoPreview
             videoUrl={state.videoUrl}
             sessionId={state.sessionId}
+            tokenUsage={state.tokenUsage}
             onReset={handleReset}
           />
         )}

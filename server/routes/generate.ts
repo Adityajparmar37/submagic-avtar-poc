@@ -1,7 +1,7 @@
 import Router from "@koa/router";
 import path from "path";
 import fs from "fs";
-import type { GenerateRequest } from "../../src/lib/types.ts";
+import type { GenerateRequest, PipelineTokenUsage } from "../../src/lib/types.ts";
 import { TOTAL_PIPELINE_STEPS } from "../../src/lib/constants.ts";
 import { enhanceScript } from "../services/gemini.ts";
 import { createSessionDir, newSessionId } from "../services/storage.ts";
@@ -46,8 +46,8 @@ router.post("/api/generate-video", async (ctx) => {
     );
   }
 
-  function sendComplete(videoUrl: string) {
-    stream.write(`data: ${JSON.stringify({ type: "complete", data: { videoUrl } })}\n\n`);
+  function sendComplete(videoUrl: string, tokenUsage: PipelineTokenUsage) {
+    stream.write(`data: ${JSON.stringify({ type: "complete", data: { videoUrl, tokenUsage } })}\n\n`);
   }
 
   function sendError(error: string) {
@@ -64,7 +64,7 @@ router.post("/api/generate-video", async (ctx) => {
     // ── Step 1: Enhance script with Gemini ──
     sendProgress(1, "Processing Script — Enhancing with AI...");
     console.log(`[pipeline:${sessionId}] Step 1: Enhancing script (emotion=${body.emotion}, duration=${body.duration}s)`);
-    const enhancedScript = await enhanceScript(body.script, body.emotion, body.duration);
+    const { text: enhancedScript, tokens: scriptTokens } = await enhanceScript(body.script, body.emotion, body.duration);
 
     // Save script for thumbnail generation context
     await fs.promises.writeFile(path.join(sessionDir, "script.txt"), enhancedScript, "utf-8");
@@ -131,8 +131,19 @@ router.post("/api/generate-video", async (ctx) => {
     await transformVideo(captionedVideoPath, finalVideoPath, body.orientation);
 
     // ── Step 7: Done ──
+    const tokenUsage: PipelineTokenUsage = {
+      scriptEnhancement: scriptTokens,
+      total: {
+        inputTokens:  scriptTokens.inputTokens,
+        outputTokens: scriptTokens.outputTokens,
+        totalTokens:  scriptTokens.totalTokens,
+      },
+    };
+    console.log(
+      `[pipeline:${sessionId}] Token summary — script: input=${scriptTokens.inputTokens} output=${scriptTokens.outputTokens} total=${scriptTokens.totalTokens}`
+    );
     sendProgress(7, "Complete — Your video is ready!");
-    sendComplete(`/api/video/${sessionId}`);
+    sendComplete(`/api/video/${sessionId}`, tokenUsage);
     console.log(`[pipeline:${sessionId}] Done!`);
 
   } catch (err: any) {

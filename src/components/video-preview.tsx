@@ -1,13 +1,15 @@
 import { useRef, useState } from "react";
 import ThumbnailGenerator from "./thumbnail-generator";
+import type { PipelineTokenUsage } from "../lib/types";
 
 interface Props {
   videoUrl: string;
   onReset: () => void;
   sessionId: string;
+  tokenUsage?: PipelineTokenUsage;
 }
 
-export default function VideoPreview({ videoUrl, onReset, sessionId }: Props) {
+export default function VideoPreview({ videoUrl, onReset, sessionId, tokenUsage }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [downloading, setDownloading] = useState(false);
 
@@ -85,6 +87,93 @@ export default function VideoPreview({ videoUrl, onReset, sessionId }: Props) {
 
       {/* Thumbnail generator */}
       <ThumbnailGenerator sessionId={sessionId} />
+
+      {/* Token usage */}
+      {tokenUsage && (
+        <div
+          className="rounded-2xl p-5 space-y-3"
+          style={{
+            background: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            marginTop: "16px",
+          }}
+        >
+          <h3
+            className="text-sm font-semibold"
+            style={{ color: "var(--color-muted)", fontFamily: "var(--font-display)" }}
+          >
+            AI TOKEN USAGE
+          </h3>
+          <div className="space-y-2">
+            {tokenUsage.scriptEnhancement && (
+              <TokenRow
+                label="Script Enhancement (Gemini)"
+                tokens={tokenUsage.scriptEnhancement}
+              />
+            )}
+            {tokenUsage.soundEffectAnalysis && (
+              <TokenRow
+                label="Sound Effect Analysis (Gemini)"
+                tokens={tokenUsage.soundEffectAnalysis}
+              />
+            )}
+            <div
+              className="pt-2"
+              style={{ borderTop: "1px solid var(--color-border)" }}
+            >
+              <TokenRow label="Total" tokens={tokenUsage.total} bold />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TokenRow({
+  label,
+  tokens,
+  bold = false,
+}: {
+  label: string;
+  tokens: { inputTokens: number; outputTokens: number; totalTokens: number };
+  bold?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 text-xs">
+      <span
+        style={{
+          color: bold ? "var(--color-text)" : "var(--color-muted)",
+          fontWeight: bold ? 600 : 400,
+        }}
+      >
+        {label}
+      </span>
+      <div className="flex gap-3" style={{ color: "var(--color-muted)", flexShrink: 0 }}>
+        <span title="Input tokens">
+          <span style={{ color: "var(--color-text)", fontWeight: 500 }}>
+            {tokens.inputTokens.toLocaleString()}
+          </span>{" "}
+          in
+        </span>
+        <span title="Output tokens">
+          <span style={{ color: "var(--color-text)", fontWeight: 500 }}>
+            {tokens.outputTokens.toLocaleString()}
+          </span>{" "}
+          out
+        </span>
+        <span title="Total tokens">
+          <span
+            style={{
+              color: "var(--color-primary)",
+              fontWeight: bold ? 700 : 500,
+            }}
+          >
+            {tokens.totalTokens.toLocaleString()}
+          </span>{" "}
+          total
+        </span>
+      </div>
     </div>
   );
 }
