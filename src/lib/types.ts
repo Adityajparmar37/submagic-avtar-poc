@@ -33,8 +33,6 @@ export interface TavusOptions {
   backgroundUrl?: string;      // URL to background image/video
   backgroundColor?: string;    // hex fallback color when no background URL
   language?: TavusLanguage;    // spoken language of the script
-  applyGreenscreen?: boolean;  // remove green screen from the replica
-  disableWatermark?: boolean;  // disable Tavus watermark (paid plan feature)
 }
 
 // ─── Request / Response ───

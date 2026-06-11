@@ -88,8 +88,6 @@ export async function generateTalkingAvatar(
   if (options.backgroundUrl)      console.log(`[tavus] background_url: ${options.backgroundUrl}`);
   if (options.backgroundColor)    console.log(`[tavus] background_color: ${options.backgroundColor}`);
   if (options.language)           console.log(`[tavus] language: ${options.language}`);
-  if (options.applyGreenscreen)   console.log(`[tavus] apply_greenscreen: true`);
-  if (options.disableWatermark)   console.log(`[tavus] disable_watermark: true`);
 
   const videoBody: Record<string, unknown> = {
     replica_id: replicaId,
@@ -101,10 +99,6 @@ export async function generateTalkingAvatar(
   if (options.backgroundColor)  videoBody.background_color = options.backgroundColor;
   if (options.language)         videoBody.language         = options.language;
 
-  const properties: Record<string, unknown> = {};
-  if (options.applyGreenscreen) properties.apply_greenscreen = true;
-  if (options.disableWatermark) properties.disable_watermark = true;
-  if (Object.keys(properties).length > 0) videoBody.properties = properties;
 
   const created = await tavusPost("/v2/videos", videoBody) as { video_id: string };
 

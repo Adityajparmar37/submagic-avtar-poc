@@ -37,8 +37,6 @@ export default function TavusOptions({ value, onChange, disabled }: Props) {
     value.backgroundUrl,
     value.backgroundColor && value.backgroundColor !== "#000000",
     value.language && value.language !== "en",
-    value.applyGreenscreen,
-    value.disableWatermark,
   ].filter(Boolean).length;
 
   return (
@@ -142,23 +140,6 @@ export default function TavusOptions({ value, onChange, disabled }: Props) {
             </select>
           </Field>
 
-          {/* Toggles row */}
-          <div className="flex gap-4 flex-wrap">
-            <Toggle
-              label="Apply Greenscreen"
-              hint="Remove green screen from replica"
-              checked={value.applyGreenscreen ?? false}
-              onChange={(v) => set("applyGreenscreen", v || undefined)}
-              disabled={disabled}
-            />
-            <Toggle
-              label="Disable Watermark"
-              hint="Paid plan feature"
-              checked={value.disableWatermark ?? false}
-              onChange={(v) => set("disableWatermark", v || undefined)}
-              disabled={disabled}
-            />
-          </div>
         </div>
       )}
     </div>
@@ -190,40 +171,3 @@ function Field({ label, hint, children }: { label: string; hint: string; childre
   );
 }
 
-function Toggle({
-  label, hint, checked, onChange, disabled,
-}: {
-  label: string; hint: string; checked: boolean;
-  onChange: (v: boolean) => void; disabled?: boolean;
-}) {
-  return (
-    <label
-      className="flex items-center gap-2 cursor-pointer select-none"
-      style={{ opacity: disabled ? 0.5 : 1 }}
-    >
-      <div
-        onClick={() => !disabled && onChange(!checked)}
-        style={{
-          width: 36, height: 20, borderRadius: 10, flexShrink: 0,
-          background: checked ? "var(--color-primary)" : "var(--color-border)",
-          position: "relative", transition: "background .2s",
-          cursor: disabled ? "not-allowed" : "pointer",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute", top: 3,
-            left: checked ? 19 : 3,
-            width: 14, height: 14, borderRadius: "50%",
-            background: "white",
-            transition: "left .2s",
-          }}
-        />
-      </div>
-      <div>
-        <div className="text-xs font-medium" style={{ color: "var(--color-text)" }}>{label}</div>
-        <div className="text-xs" style={{ color: "var(--color-muted)" }}>{hint}</div>
-      </div>
-    </label>
-  );
-}
