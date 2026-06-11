@@ -78,6 +78,7 @@ router.post("/api/generate-video", async (ctx) => {
       avatarId,
       enhancedScript,
       avatarVideoPath,
+      body.tavusOptions ?? {},
       (msg) => sendProgress(2, `Creating Talking Avatar — ${msg}`)
     );
     console.log(`[pipeline:${sessionId}] Avatar video: ${avatarVideoPath}`);

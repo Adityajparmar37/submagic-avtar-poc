@@ -23,6 +23,20 @@ export type VideoDuration = "15" | "30" | "60" | "90";
 // ─── Video Orientation ───
 export type VideoOrientation = "landscape" | "portrait";
 
+// ─── Tavus Video Options ───
+export type TavusLanguage =
+  | "en" | "es" | "fr" | "de" | "it" | "pt"
+  | "ja" | "ko" | "zh" | "hi" | "ar" | "ru" | "nl" | "tr" | "pl";
+
+export interface TavusOptions {
+  customReplicaId?: string;    // override preset avatar replica ID
+  backgroundUrl?: string;      // URL to background image/video
+  backgroundColor?: string;    // hex fallback color when no background URL
+  language?: TavusLanguage;    // spoken language of the script
+  applyGreenscreen?: boolean;  // remove green screen from the replica
+  disableWatermark?: boolean;  // disable Tavus watermark (paid plan feature)
+}
+
 // ─── Request / Response ───
 export interface GenerateRequest {
   avatar: string;
@@ -34,6 +48,7 @@ export interface GenerateRequest {
   orientation: VideoOrientation;
   captionCustomization?: CaptionCustomization;
   soundEffectWords?: UserWordEffect[];
+  tavusOptions?: TavusOptions;
 }
 
 // ─── Duration Definition ───

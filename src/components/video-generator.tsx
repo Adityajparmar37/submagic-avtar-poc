@@ -10,6 +10,7 @@ import {
 } from "./option-selectors";
 import CaptionCustomizer from "./caption-customizer";
 import WordEffectSelector from "./word-effect-selector";
+import TavusOptionsPanel from "./tavus-options";
 import ProgressIndicator from "./progress-indicator";
 import VideoPreview from "./video-preview";
 import { CAPTION_STYLE_DEFAULTS } from "../lib/constants";
@@ -22,6 +23,7 @@ import type {
   VideoDuration,
   VideoOrientation,
   UserWordEffect,
+  TavusOptions,
   PipelineProgress,
   PipelineResult,
   PipelineComplete,
@@ -46,6 +48,7 @@ export default function VideoGenerator() {
     CAPTION_STYLE_DEFAULTS[captionStyle]
   );
   const [soundEffectWords, setSoundEffectWords] = useState<UserWordEffect[]>([]);
+  const [tavusOptions, setTavusOptions] = useState<TavusOptions>({});
   const [state, setState] = useState<State>({ phase: "idle" });
 
   // Reset caption customization when the style preset changes
@@ -75,6 +78,7 @@ export default function VideoGenerator() {
         orientation,
         captionCustomization,
         soundEffectWords,
+        tavusOptions,
       };
 
       const res = await fetch("/api/generate-video", {
@@ -185,6 +189,11 @@ export default function VideoGenerator() {
             script={script}
             selections={soundEffectWords}
             onChange={setSoundEffectWords}
+            disabled={isGenerating}
+          />
+          <TavusOptionsPanel
+            value={tavusOptions}
+            onChange={setTavusOptions}
             disabled={isGenerating}
           />
         </div>

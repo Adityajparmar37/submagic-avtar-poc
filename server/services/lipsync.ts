@@ -1,4 +1,5 @@
 import fs from "fs";
+import type { TavusOptions } from "../../src/lib/types.ts";
 
 const TAVUS_API_KEY = process.env.TAVUS_API_KEY ?? "";
 const BASE_URL = "https://tavusapi.com";
@@ -57,22 +58,25 @@ async function downloadFile(url: string, dest: string): Promise<void> {
  *   TAVUS_REPLICA_ID              (fallback for all avatars)
  *   TAVUS_REPLICA_ID_AVATAR1..4   (per-avatar overrides)
  *
- * @param avatarId   e.g. "avatar1" — maps to a Tavus replica
- * @param script     The text the avatar will speak
- * @param outputPath Local path to write the downloaded MP4
- * @param onStatus   Optional callback for polling status strings
+ * @param avatarId    e.g. "avatar1" — maps to a Tavus replica
+ * @param script      The text the avatar will speak
+ * @param outputPath  Local path to write the downloaded MP4
+ * @param options     Optional Tavus generation settings
+ * @param onStatus    Optional callback for polling status strings
  */
 export async function generateTalkingAvatar(
   avatarId: string,
   script: string,
   outputPath: string,
+  options: TavusOptions = {},
   onStatus?: (msg: string) => void
 ): Promise<void> {
   if (!TAVUS_API_KEY) {
     throw new Error("TAVUS_API_KEY environment variable is not set.");
   }
 
-  const replicaId = REPLICA_ID[avatarId] ?? "";
+  // customReplicaId overrides the avatar preset
+  const replicaId = options.customReplicaId || REPLICA_ID[avatarId] || "";
   if (!replicaId) {
     throw new Error(
       `No Tavus replica ID configured for "${avatarId}". ` +
@@ -81,12 +85,28 @@ export async function generateTalkingAvatar(
   }
 
   console.log(`[tavus] Creating video — replica ${replicaId}`);
+  if (options.backgroundUrl)      console.log(`[tavus] background_url: ${options.backgroundUrl}`);
+  if (options.backgroundColor)    console.log(`[tavus] background_color: ${options.backgroundColor}`);
+  if (options.language)           console.log(`[tavus] language: ${options.language}`);
+  if (options.applyGreenscreen)   console.log(`[tavus] apply_greenscreen: true`);
+  if (options.disableWatermark)   console.log(`[tavus] disable_watermark: true`);
 
-  const created = await tavusPost("/v2/videos", {
+  const videoBody: Record<string, unknown> = {
     replica_id: replicaId,
     script,
     video_name: `submagic_${Date.now()}`,
-  }) as { video_id: string };
+  };
+
+  if (options.backgroundUrl)    videoBody.background_url   = options.backgroundUrl;
+  if (options.backgroundColor)  videoBody.background_color = options.backgroundColor;
+  if (options.language)         videoBody.language         = options.language;
+
+  const properties: Record<string, unknown> = {};
+  if (options.applyGreenscreen) properties.apply_greenscreen = true;
+  if (options.disableWatermark) properties.disable_watermark = true;
+  if (Object.keys(properties).length > 0) videoBody.properties = properties;
+
+  const created = await tavusPost("/v2/videos", videoBody) as { video_id: string };
 
   const { video_id } = created;
   console.log(`[tavus] Job created: ${video_id}`);
